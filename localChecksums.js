@@ -16,8 +16,14 @@ var args = minimist(process.argv.slice(2),{
 
 
 function processFile(f) {
-	var sha1 = sha1File(f);
-	process.stdout.write( sha1 + " " + f + "\n" );
+	try {
+		var shaSum = sha1File(f);
+		process.stdout.write( shaSum + " " + f + "\n" );		
+	} catch(e) {
+		console.error("SHA1 failed: " + f);
+		console.error(e);
+	}
+	return(shaSum);
 }
 
 function fileAccessible(f) {
@@ -47,14 +53,16 @@ function recursiveProcessDirectory(path, previouslyProcessed) {
 		files.forEach((file, i) => {
 			if(!previouslyProcessed || !fileProcessed(file, previouslyProcessed)) {
 				if(lastOp == 2 || (i+1 == fileCount)) {
-					console.log("Skipped " + skippedFiles + " files")
+					console.error("Skipped " + skippedFiles + " files")
+					skippedFiles = 0;
 				}
 				processedFiles ++;
 				lastOp = 1;
 				processFile(file);
 			} else {
 				if(lastOp == 1 || (i+1 == fileCount)) {
-					console.log("Processed " + skippedFiles + " files")
+					console.error("Processed " + skippedFiles + " files")
+					processFile = 0;
 				}
 				skippedFiles ++;
 				lastOp = 2;
@@ -77,9 +85,9 @@ try {
 	}
 	recursiveProcessDirectory(args.d, previouslyProcessed);
 } catch(e) {
-	console.dir(e);
-	console.log("----------");
+	console.error(e);
+	console.error("----------");
 	// console.log("Usage: " + process.argv[1].split(path.sep).pop() + " -d input-directory");
-	console.log("Usage: " + process.argv[1].split(path.sep).pop() + " -d input-directory [-o output-file]");
-	console.log("Optional parameter -o points to a list of previously processed files that will be skipped");
+	console.error("Usage: " + process.argv[1].split(path.sep).pop() + " -d input-directory [-o output-file]");
+	console.error("Optional parameter -o points to a list of previously processed files that will be skipped");
 }
