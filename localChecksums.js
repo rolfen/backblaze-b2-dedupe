@@ -18,12 +18,11 @@ var args = minimist(process.argv.slice(2),{
 function processFile(f) {
 	try {
 		var shaSum = sha1File(f);
-		process.stdout.write( shaSum + " " + f + "\n" );		
+		process.stdout.write( shaSum + " " + f + "\n" );
 	} catch(e) {
 		console.error("SHA1 failed: " + f);
 		console.error(e);
 	}
-	return(shaSum);
 }
 
 function fileAccessible(f) {
@@ -61,8 +60,8 @@ function recursiveProcessDirectory(path, previouslyProcessed) {
 				processFile(file);
 			} else {
 				if(lastOp == 1 || (i+1 == fileCount)) {
-					console.error("Processed " + skippedFiles + " files")
-					processFile = 0;
+					console.error("Processed " + processedFiles + " files")
+					processedFiles = 0;
 				}
 				skippedFiles ++;
 				lastOp = 2;
