@@ -30,25 +30,34 @@ function fileAccessible(f) {
 }
 
 function fileProcessed(path, previouslyProcessed) {
-	var isAlreadyProcessed = (entry) => {
-		return (entry[1] == path);
-	}
-	return (previouslyProcessed.filter(isAlreadyProcessed).length == 0);
+	return previouslyProcessed.includes(path);
 }
 
 function recursiveProcessDirectory(path, previouslyProcessed) {
 	const recursiveReaddir = require("recursive-readdir");
+	var skippedFiles = 0;
+	var processedFiles = 0;
+	var lastOp = 0;
 
 	recursiveReaddir(args.d, (err, files) => {
 		if(err) {
 			throw new Error(err);
 		}
-		files.forEach((file) => {
-			if(!previouslyProcessed || fileProcessed(file, previouslyProcessed)) {
+		var fileCount = files.length;
+		files.forEach((file, i) => {
+			if(!previouslyProcessed || !fileProcessed(file, previouslyProcessed)) {
+				if(lastOp == 2 || (i+1 == fileCount)) {
+					console.log("Skipped " + skippedFiles + " files")
+				}
+				processedFiles ++;
+				lastOp = 1;
 				processFile(file);
-				process.stderr.write('w');
 			} else {
-				process.stderr.write('s');
+				if(lastOp == 1 || (i+1 == fileCount)) {
+					console.log("Processed " + skippedFiles + " files")
+				}
+				skippedFiles ++;
+				lastOp = 2;
 			}
 		});
 	})
@@ -62,7 +71,8 @@ try {
 		previouslyProcessed = fs.readFileSync(args.o).toString().split("\n").map((line)=>{
 			// return line.split(/(?<=$[^ ]) /);
 			var separatorIndex = line.indexOf(' ');
-			return [line.substring(0, separatorIndex), line.substring(separatorIndex + 1)];
+			return line.substring(separatorIndex + 1);
+			// return [line.substring(0, separatorIndex), line.substring(separatorIndex + 1)];
 		});
 	}
 	recursiveProcessDirectory(args.d, previouslyProcessed);
