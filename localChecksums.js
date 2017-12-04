@@ -7,10 +7,7 @@ const minimist = require("minimist");
 var args = minimist(process.argv.slice(2),{
 	alias: {
 		d: "directory",
-		o: "output-file"
-	},
-	default: {
-		o: "local/localHashes.txt"
+		s: "skip"
 	}
 });
 
@@ -44,7 +41,7 @@ function recursiveProcessDirectory(path, previouslyProcessed) {
 	var processedFiles = 0;
 	var lastOp = 0;
 
-	recursiveReaddir(args.d, (err, files) => {
+	recursiveReaddir(path, (err, files) => {
 		if(err) {
 			throw new Error(err);
 		}
@@ -72,21 +69,21 @@ function recursiveProcessDirectory(path, previouslyProcessed) {
 
 try {
 	// normalize trailing slashes
-	args.d = args.d.replace(/[\/\\]$/,'') + path.sep;
+	var dirPath = args.d.replace(/[\/\\]$/,'') + path.sep;
+	var skipListFile = args.o;
 	var previouslyProcessed = null;
-	if(args.o && fileAccessible(args.o)) {
-		previouslyProcessed = fs.readFileSync(args.o).toString().split("\n").map((line)=>{
+	if(skipListFile && fileAccessible(skipListFile)) {
+		previouslyProcessed = fs.readFileSync(skipListFile).toString().split("\n").map((line)=>{
 			// return line.split(/(?<=$[^ ]) /);
 			var separatorIndex = line.indexOf(' ');
 			return line.substring(separatorIndex + 1);
 			// return [line.substring(0, separatorIndex), line.substring(separatorIndex + 1)];
 		});
 	}
-	recursiveProcessDirectory(args.d, previouslyProcessed);
+	recursiveProcessDirectory(dirPath, previouslyProcessed);
 } catch(e) {
 	console.error(e);
 	console.error("----------");
-	// console.log("Usage: " + process.argv[1].split(path.sep).pop() + " -d input-directory");
-	console.error("Usage: " + process.argv[1].split(path.sep).pop() + " -d input-directory [-o output-file]");
+	console.error("Usage: " + process.argv[1].split(path.sep).pop() + " -d input-directory [-s skip-list]");
 	console.error("Optional parameter -o points to a list of previously processed files that will be skipped");
 }
