@@ -7,7 +7,8 @@ const minimist = require("minimist");
 var args = minimist(process.argv.slice(2),{
 	alias: {
 		d: "directory",
-		s: "skip"
+		s: "skip",
+		h: "help"
 	}
 });
 
@@ -67,23 +68,31 @@ function recursiveProcessDirectory(path, previouslyProcessed) {
 	})
 }
 
+function printHelp() {
+	console.error("Usage: " + process.argv[1].split(path.sep).pop() + " -d input-directory [-s skip-list]");
+	console.error("Optional parameter -s points to a list of previously processed files that will be skipped");	
+}
+
 try {
 	// normalize trailing slashes
-	var dirPath = args.d.replace(/[\/\\]$/,'') + path.sep;
-	var skipListFile = args.o;
-	var previouslyProcessed = null;
-	if(skipListFile && fileAccessible(skipListFile)) {
-		previouslyProcessed = fs.readFileSync(skipListFile).toString().split("\n").map((line)=>{
-			// return line.split(/(?<=$[^ ]) /);
-			var separatorIndex = line.indexOf(' ');
-			return line.substring(separatorIndex + 1);
-			// return [line.substring(0, separatorIndex), line.substring(separatorIndex + 1)];
-		});
+	if(args.h) {
+		printHelp();
+	} else {
+		var dirPath = args.d.replace(/[\/\\]$/,'') + path.sep;
+		var skipListFile = args.o;
+		var previouslyProcessed = null;
+		if(skipListFile && fileAccessible(skipListFile)) {
+			previouslyProcessed = fs.readFileSync(skipListFile).toString().split("\n").map((line)=>{
+				// return line.split(/(?<=$[^ ]) /);
+				var separatorIndex = line.indexOf(' ');
+				return line.substring(separatorIndex + 1);
+				// return [line.substring(0, separatorIndex), line.substring(separatorIndex + 1)];
+			});
+		}
+		recursiveProcessDirectory(dirPath, previouslyProcessed);		
 	}
-	recursiveProcessDirectory(dirPath, previouslyProcessed);
 } catch(e) {
 	console.error(e);
 	console.error("----------");
-	console.error("Usage: " + process.argv[1].split(path.sep).pop() + " -d input-directory [-s skip-list]");
-	console.error("Optional parameter -o points to a list of previously processed files that will be skipped");
+	printHelp();
 }
