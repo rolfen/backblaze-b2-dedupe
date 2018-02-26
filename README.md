@@ -55,15 +55,31 @@ Number of hashes generated
 wc -l local/localHashes.txt
 ```
 
-
-Should ultimately equal to the number of files analyzed
+Should ultimately equal number of files analyzed
 ```
-find /my/directory -type f
+find /my/directory -type f | wc -l
+```
+
+### Validating Output
+
+Finding abnormal lines:
+```
+grep -vP '^[a-f0-9]{40} .*' local/localHashes.txt
+```
+
+Duplicates lines should never appear in the hashes for a single directory, but they do, due to an issue. This is how we can find them:
+```
+sort local/localHashes.txt |uniq -c|grep -P '^\s+([2-9]|\d{2,})\s+'
+```
+
+and filter them:
+```
+perl -ne 'print if ! $a{$_}++' local/localHashes.txt
 ```
 
 ## Diffing
 
-So now that we have a list of checksums for local files, and also for remote files, we should be able to compare them and obtain a list of files that we do not want to upload, or alternatively of files that we want to upload.
+So, now that we have a list of checksums for local files, and also for remote files, we should be able to compare them and obtain a list of files that we do not want to upload, or alternatively of files that we want to upload.
 
 There are various ways of doing that. One way is using the `q` too to run SQL queries on text files. It can be found here: http://harelba.github.io/q/
 
