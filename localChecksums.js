@@ -23,6 +23,7 @@ function processFile(f) {
 	}
 }
 
+/*
 function fileAccessible(f) {
 	try {
 		fs.accessSync(f);
@@ -31,6 +32,7 @@ function fileAccessible(f) {
 		return(false);
 	}
 }
+*/
 
 function fileProcessed(path, previouslyProcessed) {
 	return previouslyProcessed.includes(path);
@@ -40,7 +42,7 @@ function recursiveProcessDirectory(path, previouslyProcessed) {
 	const recursiveReaddir = require("recursive-readdir");
 	var skippedFiles = 0;
 	var processedFiles = 0;
-	var lastOp = 0;
+	var lastOp = 0; // code for "last operation"
 
 	recursiveReaddir(path, (err, files) => {
 		if(err) {
@@ -48,6 +50,8 @@ function recursiveProcessDirectory(path, previouslyProcessed) {
 		}
 		var fileCount = files.length;
 		files.forEach((file, i) => {
+			// prints updates during the process
+			// todo: refactor this thing
 			if(!previouslyProcessed || !fileProcessed(file, previouslyProcessed)) {
 				if(lastOp == 2 || (i+1 == fileCount)) {
 					console.error("Skipped " + skippedFiles + " files")
@@ -73,23 +77,31 @@ function printHelp() {
 	console.error("Optional parameter -s points to a list of previously processed files that will be skipped");	
 }
 
+function parseHash(line) {
+	var separatorIndex = line.indexOf(' ');
+	return line.substring(separatorIndex + 1);
+}
+
 try {
 	// normalize trailing slashes
 	if(args.h) {
 		printHelp();
 	} else {
-		var dirPath = args.d.replace(/[\/\\]$/,'') + path.sep;
-		var skipListFile = args.o;
-		var previouslyProcessed = null;
-		if(skipListFile && fileAccessible(skipListFile)) {
-			previouslyProcessed = fs.readFileSync(skipListFile).toString().split("\n").map((line)=>{
-				// return line.split(/(?<=$[^ ]) /);
-				var separatorIndex = line.indexOf(' ');
-				return line.substring(separatorIndex + 1);
-				// return [line.substring(0, separatorIndex), line.substring(separatorIndex + 1)];
-			});
+		var skipListFile = args.s;
+		if(skipListFile) {
+			var previouslyProcessed = fs
+				.readFileSync(skipListFile)
+				.toString()
+				.split("\n")
+				.map(parseHash)
+			;
+		} 
+
+		var dirPath = args.d;
+		if(dirPath) {
+			dirPath = dirPath.replace(/[\/\\]$/,'') + path.sep;
+			recursiveProcessDirectory(dirPath, previouslyProcessed);
 		}
-		recursiveProcessDirectory(dirPath, previouslyProcessed);		
 	}
 } catch(e) {
 	console.error(e);
