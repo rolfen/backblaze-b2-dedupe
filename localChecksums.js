@@ -42,7 +42,6 @@ function recursiveProcessDirectory(path, previouslyProcessed) {
 	const recursiveReaddir = require("recursive-readdir");
 	var skippedFiles = 0;
 	var processedFiles = 0;
-	var lastOp = 0; // code for "last operation"
 
 	recursiveReaddir(path, (err, files) => {
 		if(err) {
@@ -50,25 +49,16 @@ function recursiveProcessDirectory(path, previouslyProcessed) {
 		}
 		var fileCount = files.length;
 		files.forEach((file, i) => {
-			// prints updates during the process
 			// todo: refactor this thing
-			if(!previouslyProcessed || !fileProcessed(file, previouslyProcessed)) {
-				if(lastOp == 2 || (i+1 == fileCount)) {
-					console.error("Skipped " + skippedFiles + " files")
-					skippedFiles = 0;
-				}
-				processedFiles ++;
-				lastOp = 1;
-				processFile(file);
-			} else {
-				if(lastOp == 1 || (i+1 == fileCount)) {
-					console.error("Processed " + processedFiles + " files")
-					processedFiles = 0;
-				}
+			if(previouslyProcessed && fileProcessed(file, previouslyProcessed)) {
 				skippedFiles ++;
-				lastOp = 2;
+			} else {
+				processedFiles ++;
+				processFile(file);
 			}
 		});
+		console.error("Skipped " + skippedFiles + " files")
+		console.error("Processed " + processedFiles + " files")
 	})
 }
 
