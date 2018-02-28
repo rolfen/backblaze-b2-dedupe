@@ -104,3 +104,13 @@ Alternatively, we can put together some of the bash expressions which we previou
 ```
 cat hashes.txt moreHashes.txt evenMoreHashes.txt| cut -d' ' -f 1| sort| uniq -c | grep -P '^\s*([2-9]|\d{2-})'
 ```
+
+### Sqlite (or other)
+
+Convert hashes to CSV (assuming there are no double-quotes in the filenames):
+```
+cat hashes.txt |sed -e s/^/\"/ -e s/' '/\",\"/ -e s/\$/\"/
+```
+
+## Known issues
+SHA1 fails on big files.
