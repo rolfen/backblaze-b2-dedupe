@@ -82,7 +82,7 @@ Finding abnormal lines:
 grep -vP '^[a-f0-9]{40} .*' local/localHashes.txt
 ```
 
-Duplicates lines should never appear in the hashes for a single directory, but they do, due to an issue with localChecksums.js `-s` option. This is how we can find them:
+Duplicates lines should never appear in the hashes for a single directory, but they do, here is how to detect them:
 ```
 sort local/localHashes.txt |uniq -c|grep -P '^\s+([2-9]|\d{2,})\s+'
 ```
@@ -95,39 +95,6 @@ perl -ne 'print if ! $a{$_}++' local/localHashes.txt
 ## Diffing
 
 So, now that we have a list of checksums for local files, and also for remote files, we should be able to compare them and obtain a list of files that we do not want to upload, or alternatively of files that we want to upload.
-
-### Q
-
-There are various ways of doing that. One way is using the `q` too to run SQL queries on text files. It can be found here: http://harelba.github.io/q/
-
-Running these on two test files in the `test` folder, assuming that `l.txt` contains the local hashes and `r.txt` the remote hashes:
-
-To get the files we don't want to upload, because they already are on the remote:
-```
-q "select distinct l.* from l.txt l inner join r.txt r on (l.c1 = r.c1)"
-```
-
-And here we get the inverse set, that is only the files we want to upload (`Q` does not support `outer join` (yet?), but maybe there is a better way?):
-```
-q "select * from l.txt l where l.c1 not in (select distinct l.c1 from l.txt l inner join r.txt r on (l.c1 = r.c1))"
-```
-
-### Putting it together
-
-Alternatively, we can put together some of the bash expressions which we previously used. The following will output a list of hashes of all duplicate entries within given has lists, with the number of duplicates for each:
-
-```
-cat hashes.txt moreHashes.txt evenMoreHashes.txt| cut -d' ' -f 1| sort| uniq -c | grep -P '^\s*([2-9]|\d{2-})'
-```
-
-### Sqlite (or other)
-
-Convert hashes to CSV (assuming there are no double-quotes in the filenames):
-```
-cat hashes.txt |sed -e s/^/\"/ -e s/' '/\",\"/ -e s/\$/\"/
-```
-
-Then import in sqlite. This option is deprecated in favor of the perl script.
 
 ### Perl script
 
@@ -146,6 +113,23 @@ Output:
 adc83b19e793491b1c6ea0fd8b46cd9f32e592fc 2
 ca2adeb0d33b44c6bbb99a1b17574cb77681afa0 1
 ```
+
+### Putting it together
+
+We can put together some of the bash expressions which we previously used. The following will output a list of hashes of all duplicate entries within given has lists, with the number of duplicates for each:
+
+```
+cat hashes.txt moreHashes.txt evenMoreHashes.txt| cut -d' ' -f 1| sort| uniq -c | grep -P '^\s*([2-9]|\d{2-})'
+```
+
+### Sqlite (or other)
+
+Convert hashes to CSV (assuming there are no double-quotes in the filenames):
+```
+cat hashes.txt |sed -e s/^/\"/ -e s/' '/\",\"/ -e s/\$/\"/
+```
+
+Then import in sqlite tables and run queries on them. This option is deprecated in favor of the perl script.
 
 ## Known issues
 
