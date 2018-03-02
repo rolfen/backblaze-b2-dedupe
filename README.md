@@ -40,6 +40,8 @@ The number of lines in this file (`wc -l`) should be equal to the number of file
 
 ## Local Checksums
 
+### Using node.js
+
 ```
 node localChecksums.js -d /my/directory/ > local/localHashes.txt
 ```
@@ -47,6 +49,19 @@ node localChecksums.js -d /my/directory/ > local/localHashes.txt
 It will calculate checksums for local files and send them to standard output. Same format as "remote checksums".
 
 `node localChecksums.js -h` for more options.
+
+
+### sha1sum
+
+The JS option has an issue with big files - it runs out of memory on some movies,etc.
+
+Alternatively, there is a bash script which uses the `sha1sum` command to produce the same output. It works on Linux.
+
+It takes a list of files and returns hashes:
+
+```
+find ./test -type f |./addSum.sh
+```
 
 ### Monitoring progress
 
@@ -113,4 +128,6 @@ cat hashes.txt |sed -e s/^/\"/ -e s/' '/\",\"/ -e s/\$/\"/
 ```
 
 ## Known issues
-SHA1 fails on big files.
+
+`localChecksums.js` fails SHA1 on big files.  
+Undefined behavior with file links (hard or symbolic).
