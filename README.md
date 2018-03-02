@@ -127,6 +127,26 @@ Convert hashes to CSV (assuming there are no double-quotes in the filenames):
 cat hashes.txt |sed -e s/^/\"/ -e s/' '/\",\"/ -e s/\$/\"/
 ```
 
+Then import in sqlite. This option is deprecated in favor of the perl script.
+
+### Perl script
+
+`dupes.pl` can process the hashes.
+
+At the moment it takes a list of hashes and returns a list of hashes with the number of occurrences, so every duplicated will have a number higher than 1.
+
+Example - to find duplicates in `./test/`:
+```
+find ./test/ -type f|./addSum.sh|./dupes.pl
+```
+
+Output:
+```
+8f627205dfae0cbe639149db8a2acf5410cc37f6 1
+adc83b19e793491b1c6ea0fd8b46cd9f32e592fc 2
+ca2adeb0d33b44c6bbb99a1b17574cb77681afa0 1
+```
+
 ## Known issues
 
 `localChecksums.js` fails SHA1 on big files.  
