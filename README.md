@@ -46,7 +46,7 @@ The number of lines in this file (`wc -l`) should be equal to the number of file
 node localChecksums.js -d /my/directory/ > local/localHashes.txt
 ```
 
-It will calculate checksums for local files and send them to standard output. Same format as "remote checksums".
+It will calculate checksums for local files and send them to standard output. Similar output format to "remote checksums".
 
 `node localChecksums.js -h` for more options.
 
@@ -82,12 +82,12 @@ Finding abnormal lines:
 grep -vP '^[a-f0-9]{40} .*' local/localHashes.txt
 ```
 
-Duplicates lines should never appear in the hashes for a single directory, but they do, here is how to detect them:
+Duplicates lines should never appear in the hashes of a particular directory (it means the same file was processed twice). Here is how to detect this anomaly:
 ```
 sort local/localHashes.txt |uniq -c|grep -P '^\s+([2-9]|\d{2,})\s+'
 ```
 
-and filter them out:
+and to filter them out:
 ```
 perl -ne 'print if ! $a{$_}++' local/localHashes.txt
 ```
@@ -100,18 +100,23 @@ So, now that we have a list of checksums for local files, and also for remote fi
 
 `dupes.pl` can process the hashes.
 
-At the moment it takes a list of hashes and returns a list of hashes with the number of occurrences, so every duplicated will have a number higher than 1.
+It takes a list of hashes in standard input.
 
-Example - to find duplicates in `./test/`:
+Example:
 ```
-find ./test/ -type f|./addSum.sh|./dupes.pl
+find ./test/ -type f|./addSum.sh|./dupes.pl count
 ```
 
-Output:
+This will output the number of occurrances for each hash:
 ```
 8f627205dfae0cbe639149db8a2acf5410cc37f6 1
 adc83b19e793491b1c6ea0fd8b46cd9f32e592fc 2
 ca2adeb0d33b44c6bbb99a1b17574cb77681afa0 1
+```
+
+To print details about duplicates:
+```
+find ./test/ -type f|./addSum.sh|./dupes.pl
 ```
 
 ### Putting it together
