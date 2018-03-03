@@ -119,6 +119,11 @@ To print details about duplicates:
 find ./test/ -type f|./addSum.sh|./dupes.pl
 ```
 
+To recursively process all `.hashes.txt` files in `local/hashes` and get the number of unique files:
+```
+find local/hashes -type f -name *.hashes.txt |xargs -d "\n" cat| ./dupes.pl count |wc -l
+```
+
 ### Putting it together
 
 We can put together some of the bash expressions which we previously used. The following will output a list of hashes of all duplicate entries within given has lists, with the number of duplicates for each:
@@ -140,3 +145,7 @@ Then import in sqlite tables and run queries on them. This option is deprecated 
 
 `localChecksums.js` fails SHA1 on big files.  
 Undefined behavior with file links (hard or symbolic).
+
+## Platform compatibility
+
+This was primarily developed on Linux. However, the all the parts used *should* be available on OSX and also Windows, through Cygwin or BusyBox, for example.
