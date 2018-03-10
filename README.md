@@ -50,27 +50,29 @@ It will calculate checksums for local files and send them to standard output. Si
 
 `node localChecksums.js -h` for more options.
 
+This script has an issue with big files - it runs out of memory on some movies,etc.
 
-### sha1sum
+### Using sha1sum
 
-The JS option has an issue with big files - it runs out of memory on some movies,etc.
 
 Alternatively, there is a bash script which uses the `sha1sum` command to produce the same output. It works on Linux.
 
-It takes a list of files and returns hashes:
+It takes a list of files and returns hashes. Here is a typical use:
 
 ```
-find ./test -type f |./addSum.sh
+find ./test -type f |./addSum.sh > localHashes.txt
 ```
 
-### Monitor progress
+### Verify completion
 
 Number of hashes generated
+
 ```
 wc -l local/localHashes.txt
 ```
 
 Should ultimately equal number of files analyzed
+
 ```
 find /my/directory -type f | wc -l
 ```
@@ -78,16 +80,19 @@ find /my/directory -type f | wc -l
 ### Validate Output
 
 Find abnormal lines:
+
 ```
 grep -vP '^[a-f0-9]{40} .*' local/localHashes.txt
 ```
 
 Duplicates lines should never appear in the hashes of a particular directory (it means the same file was processed twice). Here is how to detect this anomaly:
+
 ```
 sort local/localHashes.txt |uniq -c|grep -P '^\s+([2-9]|\d{2,})\s+'
 ```
 
 and to filter them out:
+
 ```
 perl -ne 'print if ! $a{$_}++' local/localHashes.txt
 ```
@@ -106,13 +111,13 @@ It takes a list of hashes in standard input and lists duplicates in useful ways.
 find ./test/ -type f|./addSum.sh|./dupes.pl
 ```
 
-Output the number of occurrances for each hash.  
+To get the number of occurrances for each hash. :
 
 ```
 find ./test/ -type f|./addSum.sh|./dupes.pl count
 ```
 
-Output:
+It outputs:
 
 ```
 8f627205dfae0cbe639149db8a2acf5410cc37f6 1
