@@ -3,7 +3,7 @@ De-duplicate files before uploading to Backblaze B2
 
 This is work in progress.
 
-## Installation
+## Install
 
 ```
 npm install
@@ -63,7 +63,7 @@ It takes a list of files and returns hashes:
 find ./test -type f |./addSum.sh
 ```
 
-### Monitoring progress
+### Monitor progress
 
 Number of hashes generated
 ```
@@ -75,9 +75,9 @@ Should ultimately equal number of files analyzed
 find /my/directory -type f | wc -l
 ```
 
-### Validating Output
+### Validate Output
 
-Finding abnormal lines:
+Find abnormal lines:
 ```
 grep -vP '^[a-f0-9]{40} .*' local/localHashes.txt
 ```
@@ -92,7 +92,7 @@ and to filter them out:
 perl -ne 'print if ! $a{$_}++' local/localHashes.txt
 ```
 
-## Diffing
+## Diff
 
 So, now that we have a list of checksums for local files, and also for remote files, we should be able to compare them and obtain a list of files that we do not want to upload, or alternatively of files that we want to upload.
 
@@ -100,31 +100,31 @@ So, now that we have a list of checksums for local files, and also for remote fi
 
 `dupes.pl` can process the hashes.
 
-It takes a list of hashes in standard input.
+It takes a list of hashes in standard input and lists duplicates in useful ways.
 
-Example:
-```
-find ./test/ -type f|./addSum.sh|./dupes.pl count
-```
-
-This will output the number of occurrances for each hash:
-```
-8f627205dfae0cbe639149db8a2acf5410cc37f6 1
-adc83b19e793491b1c6ea0fd8b46cd9f32e592fc 2
-ca2adeb0d33b44c6bbb99a1b17574cb77681afa0 1
-```
-
-To print details about duplicates:
 ```
 find ./test/ -type f|./addSum.sh|./dupes.pl
 ```
 
-To recursively process all `.hashes.txt` files in `local/hashes` and get the number of unique files:
+Output the number of occurrances for each hash.  
+
 ```
-find local/hashes -type f -name *.hashes.txt |xargs -d "\n" cat| ./dupes.pl count |wc -l
+find ./test/ -type f|./addSum.sh|./dupes.pl count
 ```
 
-### Putting it together
+Output:
+
+```
+8f627205dfae0cbe639149db8a2acf5410cc37f6 1
+adc83b19e793491b1c6ea0fd8b46cd9f32e592fc 2 
+ca2adeb0d33b44c6bbb99a1b17574cb77681afa0 1
+```
+
+Count ouptut lines (`wc -l`) to get the number of unique files.
+
+
+
+### Putting it together in bash
 
 We can put together some of the bash expressions which we previously used. The following will output a list of hashes of all duplicate entries within given has lists, with the number of duplicates for each:
 
@@ -132,14 +132,9 @@ We can put together some of the bash expressions which we previously used. The f
 cat hashes.txt moreHashes.txt evenMoreHashes.txt| cut -d' ' -f 1| sort| uniq -c | grep -P '^\s*([2-9]|\d{2-})'
 ```
 
-### Sqlite (or other)
+### Sqlite
 
-Convert hashes to CSV (assuming there are no double-quotes in the filenames):
-```
-cat hashes.txt |sed -e s/^/\"/ -e s/' '/\",\"/ -e s/\$/\"/
-```
-
-Then import in sqlite tables and run queries on them. This option is deprecated in favor of the perl script.
+Check `SQLite.md` for a walkthrough.
 
 ## Known issues
 
