@@ -20,10 +20,9 @@ var lineRead = readline.createInterface({
   terminal: false
 });
 
-
 lineRead.on('line', function (line) {
-	var sha, path;
-	[sha, path] = line.split('/ +/', 2);
+	var sha = line.substr(0,40);
+	var path = line.substr(41);
 	if(sha in hash) {
 		// exists
 		hash[sha].push(path);
@@ -34,7 +33,6 @@ lineRead.on('line', function (line) {
 });
 
 lineRead.on('close', function (line) {
-	debugger;
 	for(sha in hash) {
 		if(hash.hasOwnProperty(sha)) {
 			var files = hash[sha];
@@ -44,7 +42,7 @@ lineRead.on('close', function (line) {
 				default:
 					if(files.length > 1) {
 						process.stdout.write(
-							$sha + "\n" + files.join("\n") + "\n"
+							sha + "\n" + files.join("\n") + "\n"
 						);
 					}
 				break;
