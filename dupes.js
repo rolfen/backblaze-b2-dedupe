@@ -42,7 +42,7 @@ lineRead.on('close', function (line) {
 				default:
 					if(files.length > 1) {
 						process.stdout.write(
-							sha + "\n" + files.join("\n") + "\n"
+							sha + "\n" + files.join("\n") + "\n\n"
 						);
 					}
 				break;

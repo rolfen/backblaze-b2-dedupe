@@ -1,4 +1,8 @@
 #!/usr/bin/perl
+
+use strict; 
+use warnings; 
+
 my %hash; 
 
 
@@ -17,26 +21,29 @@ sub myPush {
 
 # Key: checksum. Values: (reference to) array of file paths
 
+my ($line, $key, $ARGV);
+
 while($line = <STDIN>) {
 	my($sha, $path) = split(/ +/, $line, 2);
 	myPush($sha, $path, \%hash);
 }
+
 if($ARGV[0] eq "count") {
 	# print counts for each hash
 	foreach $key (keys %hash) {
 		print $key." ".scalar(@{$hash{$key}})."\n";
 	}
-#} elsif($ARGV[0] eq "dirs") {
-#	my %dirs;
-#	use File::Basename;
-#	while(my($k, $v) = each(%hash)) {
-#		# my $dirpath = basename($v);
-#		if(scalar(@{$v}) > 1) {
-#			# duplicates
-#		} elsif(scalar(@{$v}) == 1) {
-#			# single file
-#		}
-#	}
+} elsif($ARGV[0] eq "dirs") {
+	my %dirs;
+	use File::Basename;
+	while(my($k, $v) = each(%hash)) {
+		# my $dirpath = basename($v);
+		if(scalar(@{$v}) > 1) {
+			# duplicates
+		} elsif(scalar(@{$v}) == 1) {
+			# single file
+		}
+	}
 } else {
 	# print groups of duplicates
 	foreach $key (keys %hash) {
