@@ -1,0 +1,6 @@
+- Count the number of shared duplications for each two pair of directories
+- (shared duplicates x 2) / total number of files for the two directories = duplicate affinity ratio
+- Sort directory pairs by duplicate affinity ratio
+
+Todo: Collapse subdirectory with a duplicate affinity ratio of 1.
+Todo: Should we have some sort of hierarchical affinity score that takes into consideration the score of subirectories?
