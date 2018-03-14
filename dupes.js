@@ -44,6 +44,43 @@ lineRead.on('close', function (line) {
 	switch(process.argv[2]) {
 		case "count":
 		break;
+		case "affinity":
+			// todo: use set-manipulator module
+			// todo: unit testing
+			/*
+			const affinity = {};
+			const directories = {};
+			const intersections = {};
+			function Set() {
+				this.intersections = {};
+			}
+			function Intersection() {
+				this.set0 = undefined; // holds reference to set0
+				this.set1 = undefined; // as above
+				this.points = [];
+			}
+			function SetList() {
+				this.set = {};
+			} 
+			SetList.prototype.addIntersection = function(set0, set1, point) {
+				if(!this.sets[set0]) {
+
+				}
+			}
+			DirectoryList.prototype.
+			function addIntersection(dir0, dir1, path) {
+				var intersection = {
+					'path' : path
+				};
+				directories[dir0] = intersection;
+				directories[dir1] = intersection;
+			}
+			*/
+			for(var sha in hash) {
+				if(hash.hasOwnProperty(sha)) {
+				}
+			}
+		break;
 		case "dirs":
 			const path = require('path');
 			var dir = {};
