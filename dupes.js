@@ -45,8 +45,39 @@ lineRead.on('close', function (line) {
 		case "count":
 		break;
 		case "affinity":
-			// todo: use set-manipulator module
+			/*
+				
+
+				Alternative: 
+				Compile a list of UniqueFile objects
+				We sort of already have this in the gloabl hash object
+				But I guess it would be nice to have the sha1 inside the object so that we can move it around without loosing this information.
+				We can then also add properties / methods.
+				(but do we need to?)
+
+				
+				uniqueFile {
+					sha1 89278ca987e9ae772d01f9278ca987de8a717e9a
+					paths [
+						/a/b/file.orf
+						/x/y/sameFile.orf
+					]
+				}
+
+				Then group them in directory sets
+				Then it will be fast to find intersection by comparing object references
+				Maybe we don't need set-manipulator
+
+				Alternative:
+				Keep it as it is now, and add directory set arrays of sha1 string,
+				and compare using the set-manipulator module
+
+				In any case would be nice to use "classes" to abstract and decouple these details from the code
+			
+			*/
+
 			// todo: unit testing
+			
 			/*
 			const affinity = {};
 			const directories = {};
