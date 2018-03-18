@@ -34,16 +34,22 @@ var lineRead = readline.createInterface({
  FileList, HashList, DirList
 
  FileListItem {
+ 	path: string (or dirname/basename?),
 	hash: HashListItem
  }
 
  HashListItem {
+ 	sha1: string,
 	files: [FileListItems]
  }
 
  DirListItem {
+ 	dirname: string,
 	files: [FileListItems]
  }
+
+ Should we rewrite functions as methods?
+ Eg: DirList.getCombinations()
 
 */
 
