@@ -26,6 +26,57 @@ var lineRead = readline.createInterface({
   terminal: false
 });
 
+
+/* TODO:
+ Mutliple linked lists
+ Maybe:
+
+ FileList, HashList, DirList
+
+ FileListItem {
+	hash: HashListItem
+ }
+
+ HashListItem {
+	files: [FileListItems]
+ }
+
+ DirListItem {
+	files: [FileListItems]
+ }
+
+*/
+
+
+/*
+ * @param {HashList} hash
+ * @return {DirList} 
+ */
+function dirList(hash) {
+	const path = require('path');
+	var dir = {};
+	for(var sha in hash) {
+		if(hash.hasOwnProperty(sha)) {
+			hash[sha].forEach(function(file){
+				var dirEntry;
+				var dirname = path.dirname(file);
+				var basename = path.basename(file);
+				if(!(dirname in dir)) {
+					dir[dirname] = [[],[]];
+				}
+				dirEntry = dir[dirname];
+				if(hash[sha].length > 1) {
+					dirEntry[DUPLICATE].push(basename);
+				} else if (hash[sha].length == 0){
+					dirEntry[UNIQUE].push(basename);							
+				}
+				dir[dirname] = dirEntry;
+			});
+		}
+	}
+	return dir;
+}
+
 function mdAdd(key, val, hash) {
 	if(!(key in hash)) {
 		hash[key] = [];
@@ -107,33 +158,27 @@ lineRead.on('close', function (line) {
 				directories[dir1] = intersection;
 			}
 			*/
-			for(var sha in hash) {
-				if(hash.hasOwnProperty(sha)) {
+			var dir = dirList(hash);
+			var combinations = [];
+			var paths = Object.keys(dir);
+			// find all combinations of hashes
+			paths.forEach(function(hashA, i){
+				paths.slice(i+1).forEach(function(hashB){
+					combinations.push([hashA, hashB]);
+					console.log('[' + hashA + ', ' + hashB + ']' );
+				});
+			});
+		break;
+		case "dirlist":
+			var dir = dirList(hash)
+			for(var dirname in dir) {
+				if(dir.hasOwnProperty(dirname)) { 
+					process.stdout.write(dirname + "\n");
 				}
 			}
 		break;
 		case "dirs":
-			const path = require('path');
-			var dir = {};
-			for(var sha in hash) {
-				if(hash.hasOwnProperty(sha)) {
-					hash[sha].forEach(function(file){
-						var dirEntry;
-						var dirname = path.dirname(file);
-						var basename = path.basename(file);
-						if(!(dirname in dir)) {
-							dir[dirname] = [[],[]];
-						}
-						dirEntry = dir[dirname];
-						if(hash[sha].length > 1) {
-							dirEntry[DUPLICATE].push(basename);
-						} else if (hash[sha].length == 0){
-							dirEntry[UNIQUE].push(basename);							
-						}
-						dir[dirname] = dirEntry;
-					});
-				}
-			}
+			var dir = dirList(hash)
 			for(var dirname in dir) {
 				if(dir.hasOwnProperty(dirname) && (dir[dirname][DUPLICATE].length > 0)) { 
 					process.stdout.write(dirname + "\n");
