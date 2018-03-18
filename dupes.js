@@ -164,6 +164,8 @@ lineRead.on('close', function (line) {
 				directories[dir1] = intersection;
 			}
 			*/
+			var so = require('setops');
+			
 			var dir = dirList(hash);
 			var combinations = [];
 			var paths = Object.keys(dir);

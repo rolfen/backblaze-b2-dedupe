@@ -8,7 +8,7 @@
     "minimist": "^1.2.0",
     "path": "^0.12.7",
     "recursive-readdir": "^2.2.1",
-    "set-manipulator": "^0.3.1",
+    "setops": "git+https://github.com/rolfen/setOps.git",
     "sha1-file": "^1.0.0"
   },
   "devDependencies": {},
