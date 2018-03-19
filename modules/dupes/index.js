@@ -14,24 +14,31 @@ var hash = {};
  FileList, HashList, DirList
 
  FileItem {
- 	path: string (or dirname/basename?),
+ 	filename: string,
  	directory: DirItem
 	hash: HashItem
  }
 
  HashItem {
  	sha1: string,
-	files: FileList
+	files: {FileItems filename-indexed}
  }
 
  DirItem {
  	path: string,
-	files: FileList
+	files: {fileItems filename-indexed}
+ }
+
+ FileHashRel {
+	file:FileItem
+	hash:HashItem
  }
 
 Functions as methods
-Eg: DirList.getCombinations()
-
+Eg: 
+DirList.getCombinations()
+HashList.merge(someHashItem)
+.unique() sounds better than .merge()
 */
 
 function FileItem() {
