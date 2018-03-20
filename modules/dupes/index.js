@@ -1,11 +1,6 @@
 
 'use strict';
 
-const DUPLICATE = 0;
-const UNIQUE = 1;
-
-var hash = {};
-
 
 /* TODO:
  Mutliple linked lists
@@ -13,36 +8,40 @@ var hash = {};
 
  FileList, HashList, DirList
 
- FileItem {
+ File {
  	filename: string,
- 	directory: DirItem
-	hash: HashItem
+ 	directory: Directory
+	hash: Hash
  }
 
- HashItem {
+ Hash {
  	sha1: string,
-	files: {FileItems filename-indexed}
+	files: {File indexed list}
  }
 
- DirItem {
+ Directory {
  	path: string,
-	files: {fileItems filename-indexed}
+	files: {File indexed list}
  }
 
- FileHashRel {
-	file:FileItem
-	hash:HashItem
- }
+DirectoryList {
+	items: {Directory indexed list}
+}
 
 Functions as methods
 Eg: 
-DirList.getCombinations()
+DirectoryList.getCombinations()
 HashList.merge(someHashItem)
 .unique() sounds better than .merge()
 */
 
-function FileItem() {
-	this.path = undefined;
+
+function File(path) {
+	if(path) {
+		this.path = path;
+	} else {
+		this.path = undefined;
+	}
 	this.directory = undefined;
 	this.hash = undefined;
 }
@@ -63,57 +62,52 @@ FileList.prototype.add = function(fileItem) {
 }
 
 
-function HashItem() {
- 	this.sha1 = undefined; // string,
-	this.fileItem = new FileList(); // [FileItem]
-}
-
-/*
-HashItem.prototype.addFile = function(fileItem) {
-	var filePath = 
-	if(filePath in this.files) {
-		throw new Error("File " + filePath + " already added");
+function Hash(sha1) {
+	if(sha1) {
+		this.sha1 = sha1;
 	} else {
-		this.fileItems.push(filePath);
-		return(filePath);
+		this.sha1 = undefined;
 	}
-}
-*/
-
-// HashItem.prototype.addFileIfNotExists ?
-
-function DirItem() {
-	this.dirname = undefined; // string
-	this.fileItems = []; // [FileItem]
+	this.files = {}; // FileItems
 }
 
-function DirList() {
-	this.dirItems = []; // [DirItem]
+
+function Directory(dirname) {
+	if(dirname) {
+		this.dirname = dirname;
+	} else {
+		this.dirname = undefined;
+	}
+	this.files = {}; // FileItems
 }
 
-DirList.prototype.addDir = function(dirname) {
-	var dirItem = new DirItem();
-	dirItem.dirname = dirname;
-	return this.addDirItem(dirItem);
+function DirectoryList() {
+	this.items = {}; // [DirItem]
 }
 
 // returns newly added dirItem
-DirList.prototype.addDirItem = function(dirItem) {
-	if(typeof dirItem.dirname == "string") {
-		var dirname = dirItem.dirname;
-		if(!(dirname in this.dirItems)) {
-			dirItem = new DirItem();
-			this.dirItems[dirname] = dirItem;
-			return(dirItem);
+DirectoryList.prototype.add = function(dir) {
+	if (!(dir instanceof Dir)) {
+		throw new Error("Invalid argument");
+	} else if (typeof dir.dirname == "string") {
+		throw new Error("Dirname missing");
+	} else  {
+		var dirname = dir.dirname;
+		if(!(dirname in this.items)) {
+			this.items[dirname] = dir;
+			return(this);
 		} else {
 			throw new Error("Directory " +  dirname + " has already been added");
 		}
-	} else {
-		throw new Error("dirItem.dirname must be set");
-	}
+	} 
 }
 
-DirList.prototype.fromHashList = function(hashList) {
+DirectoryList.prototype.merge = function(dir) {
+}
+
+
+// must check code below
+DirectoryList.prototype.fromHashList = function(hashList) {
 	const path = require('path');
 	for(var sha1 in hash) {
 		if(hashList.hasOwnProperty(sha1)) {
@@ -135,14 +129,30 @@ DirList.prototype.fromHashList = function(hashList) {
 			});
 		}
 	}
-	return dir;
+	return this;
 }
 
+module.exports = {
+	File,
+	Hash,
+	Directory,
+	DirectoryList
+};
+
+// =============
+
+// Code below is for reference
 
 /*
  * @param {HashList} hash
  * @return {DirList} 
  */
+
+const DUPLICATE = 0;
+const UNIQUE = 1;
+
+const hash = {};
+
 function dirList(hash) {
 	const path = require('path');
 	var dir = {};
@@ -301,9 +311,3 @@ function skipThis() {
 	});
 
 }
-
-module.exports = {
-	HashItem,
-	DirItem,
-	DirList
-};

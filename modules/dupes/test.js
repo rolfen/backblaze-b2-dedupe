@@ -1,56 +1,88 @@
 'use strict';
 
+
+const bogusFilename = 'fname.png';
+const bogusDirname = "/one/two";
+const bogusSha1 = "8f627205dfae0cbe639149db8a2acf5410cc37f6";
+
 const assert = require('assert');
 
-const HashItem = require('./index.js').HashItem;
+const Hash = require('./index.js').Hash;
 const HashList = require('./index.js').HashList;
 
-const FileItem = require('./index.js').FileItem;
+const File = require('./index.js').File;
 const FileList = require('./index.js').FileList;
 
-const DirItem = require('./index.js').DirItem;
-const DirList = require('./index.js').DirList;
+const Directory = require('./index.js').Directory;
+const DirectoryList = require('./index.js').DirList;
+
+const connect = require('./index.js').connect;
+
+
+// v v v v v v THIS v v v v v v
 
 
 !function() {
-	console.log("FileItem Object");
 
-	const FileItem = require('./index.js').FileItem;
+	console.log("File");
+
+	var file = new File(bogusFilename);
+	assert.strictEqual(file.path, bogusFilename);
+
+}();
+
+!function() {
+	console.log("connect File to Hash");
+	var file = new File(bogusFilename);
+	var hash = new Hash(bogusSha1);
+}();
+
+!function() {
+	console.log("Hash");
+	var hash = new Hash(bogusSha1);
+	assert.strictEqual(hash.sha1, bogusSha1);
+}();
+
+!function() {
+	console.log("Directory");
+
+	var dir = new Directory(bogusDirname);
+	assert.strictEqual(dir.dirname, bogusDirname);
+
+	console.log("Directory: linked objects");
+
+	var file = new File();
+
+	dir.files[bogusFilename] = file;
+
+	var tmpObj = {};
+	tmpObj[bogusFilename] = file;
+
+	assert.deepEqual(dir.files, tmpObj);
+
+
+}();
+
+
+true || !function() {
+
+	// test "connect"
 
 	var fileItem = new FileItem();
-	var hashItem = new HashItem();
+	fileItem.filename = filename;
 
-	hashItem.sha1 = "8f627205dfae0cbe639149db8a2acf5410cc37f6";
+	var dirItem = new DirectoryItem();
+	dirItem.path = dirname;
 
-	fileItem.hash = hashItem;
+	connect(dirItem, fileItem);
+
+	assert.strictEqual(fileItem.directory, dirItem);
+	assert.strictEqual(dirItem.files[filename], fileItem);
+
 
 }()
 
-
-/*
-!function() {
-	console.log("HashItem Object");
-
-	var hashItem = new HashItem();
-
-	hashItem.sha1 = "8f627205dfae0cbe639149db8a2acf5410cc37f6";
-
-	var fileItem1 = new FileItem();
-	fileItem1.path = "/my/file.png";
-
-	var fileItem2 = new FileItem();
-	fileItem2.path = "/my/otherFile.png";
-
-	hashItem.files.add(fileItem1);
-	hashItem.files.add(fileItem2);
-
-	assert.equal(hashItem.sha1,"8f627205dfae0cbe639149db8a2acf5410cc37f6");
-
-	// HashItem holds links to FileItem objects
-	assert.strictEqual(hashItem.files[fileItem1.path]. fileItem1);
-}();
-*/
-
+/* meh
 
 !function() {
 	console.log("DirItem Object");
@@ -100,67 +132,6 @@ const DirList = require('./index.js').DirList;
 		directory: "/some/dir",
 		files: [fileItem]
 	});
+}
 
-
-	// v v v v v v THIS v v v v v v
-
-	// test scalar properties
-
-	const filename = 'fname.png';
-	const dirname = "/one/two";
-
-	var fileItem = new FileItem();
-	fileItem.filename = filename;
-	assert.strictEqual(fileItem.filename, filename);
-
-	// todo: rename DirectoryItem() to Directory(), etc.
-
-	// test "connect"
-
-	var fileItem = new FileItem();
-	fileItem.filename = filename;
-
-	var dirItem = new DirectoryItem();
-	dirItem.path = dirname;
-
-	connect(dirItem, fileItem);
-
-	assert.strictEqual(fileItem.directory, dirItem);
-	assert.strictEqual(dirItem.files[filename], fileItem);
-
-	// todo: test lists
-
-	var fileItem = fileList.unique('fname.png')
-	var dirItem = dirList.unique('/my/dir')
-	var hashItem = hashList.unique('23894280389420')
-
-	/* no!
-	var dirItem = new DirItem({
-		path: "/my/dir",
-		files: new FileList([
-			new FileItem({
-				filename: "one.png",
-				hash: new HashItem({
-					sha1: ,
-
-				})
-			}),
-			new FileItem({
-				filename: "two.png",
-				hash: new HashItem({
-					sha1: ,
-
-				})
-			})			
-		])
-	});
-	*/
-
-}()
-
-!function() {
-	console.log("DirList Object");
-
-	var dirList = new DirList();
-	
-}()
+*/
