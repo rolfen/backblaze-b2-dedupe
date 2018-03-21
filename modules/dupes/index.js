@@ -35,6 +35,15 @@ function connect(item1, item2) {
 	item2.mergeIn(item1);
 }
 
+// returns this[key]
+// creates it first if not exist
+function unique(itemClass, key, value) {
+	if(!(key in this)) {
+		this[key] = new itemClass(value);
+	}
+	return(this[key]);
+}
+
 function setPropertyOnce(propertyName, value) {
 	if(propertyName in this) {
 		throw new Error("Already set");
@@ -49,7 +58,7 @@ Collection.prototype.setOnce = setPropertyOnce;
 
 class Item {
 	constructor(value) {
-		if(value) {
+		if(value !== undefined) {
 			this.value = value;
 		}		
 	}
@@ -96,7 +105,11 @@ class Hash extends Item {
 	}
 }
 
-class HashCollection extends Collection {}
+class HashCollection extends Collection {
+	unique(key, value) {
+		return unique.call(this, Hash, key, value);
+	}
+}
 
 class Directory extends Item {
 

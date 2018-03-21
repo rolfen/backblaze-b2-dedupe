@@ -3,11 +3,11 @@
 
 const readline = require('readline');
 const minimist = require("minimist");
+const HashCollection = require("./modules/dupes/index.js").HashCollection;
+const File = require("./modules/dupes/index.js").File;
 
-const DUPLICATE = 0;
-const UNIQUE = 1;
 
-var hash = {};
+
 
 // parse arguments
 var args = minimist(process.argv.slice(2),{
@@ -20,6 +20,9 @@ var args = minimist(process.argv.slice(2),{
 	}
 });
 
+var verb = process.argv[2];
+var hashes = new HashCollection();
+
 var lineRead = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -27,78 +30,20 @@ var lineRead = readline.createInterface({
 });
 
 
-/* TODO:
- Mutliple linked lists
- Maybe:
-
- FileList, HashList, DirList
-
- FileListItem {
- 	path: string (or dirname/basename?),
-	hash: HashListItem
- }
-
- HashListItem {
- 	sha1: string,
-	files: [FileListItems]
- }
-
- DirListItem {
- 	dirname: string,
-	files: [FileListItems]
- }
-
- Should we rewrite functions as methods?
- Eg: DirList.getCombinations()
-
-*/
-
-
-/*
- * @param {HashList} hash
- * @return {DirList} 
- */
-function dirList(hash) {
-	const path = require('path');
-	var dir = {};
-	for(var sha in hash) {
-		if(hash.hasOwnProperty(sha)) {
-			hash[sha].forEach(function(file){
-				var dirEntry;
-				var dirname = path.dirname(file);
-				var basename = path.basename(file);
-				if(!(dirname in dir)) {
-					dir[dirname] = [[],[]];
-				}
-				dirEntry = dir[dirname];
-				if(hash[sha].length > 1) {
-					dirEntry[DUPLICATE].push(basename);
-				} else if (hash[sha].length == 0){
-					dirEntry[UNIQUE].push(basename);							
-				}
-				dir[dirname] = dirEntry;
-			});
-		}
-	}
-	return dir;
-}
-
-function mdAdd(key, val, hash) {
-	if(!(key in hash)) {
-		hash[key] = [];
-	} 
-	hash[key].push(val);
-}
-
-
 lineRead.on('line', function (line) {
 	var sha = line.substr(0, 40);
 	var path = line.substr(41);
-	mdAdd(sha, path, hash);
+	var hash = hashes.unique(sha);
+	hash.mergeIn(new File(path));
 });
 
 lineRead.on('close', function (line) {
-	switch(process.argv[2]) {
+	switch(verb) {
+		case "list-hashes":
+			Object.keys(hashes).forEach((h)=>{
+				console.log(h);
+			});
+		break;
 		case "count":
 		break;
 		case "affinity":

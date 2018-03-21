@@ -47,13 +47,19 @@ const connect = require('./index.js').connect;
 }();
 
 !function() {
-	console.log("connect File to Hash");
-	var file = new File(bogusFilename);
+	var file = new File('/me/file.jpg');
 	var hash = new Hash(bogusSha1);
+	console.log("Merge Hash into File");
 	file.mergeIn(hash);
 	assert.strictEqual(file.hash,hash);
+	console.log("Merge File into Hash");
 	hash.mergeIn(file);
 	assert.strictEqual(hash.files[file.value],file);
+	console.log("Merge another File into Hash");
+	var file2 = new File('/my/file1/f1/blah.txt');
+	hash.mergeIn(file2);
+	assert.strictEqual(hash.files[file2.value],file2);
+	assert(Object.keys(hash.files).length === 2);	
 }();
 
 !function() {
