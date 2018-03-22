@@ -31,8 +31,8 @@ etc.
 */
 
 function connect(item1, item2) {
-	item1.mergeIn(item2);
-	item2.mergeIn(item1);
+	item1.addRef(item2);
+	item2.addRef(item1);
 }
 
 // returns this[key]
@@ -76,7 +76,7 @@ class File extends Item {
 		super(value);
 	}
 
-	mergeIn (item) {
+	addRef (item) {
 		if (item instanceof Hash) {
 			this.setOnce('hash', item)
 		} else if (item instanceof Directory) {
@@ -87,7 +87,11 @@ class File extends Item {
 	}
 }
 
-class FileCollection extends Collection {}
+class FileCollection extends Collection {
+	unique(key, value) {
+		return unique.call(this, File, key, value);
+	}
+}
 
 class Hash extends Item {
 
@@ -96,7 +100,7 @@ class Hash extends Item {
 		this.files = new FileCollection();
 	}
 
-	mergeIn (item) {
+	addRef (item) {
 		if (item instanceof File) {
 			this.files.setOnce(item.value, item);
 		} else {
@@ -118,7 +122,7 @@ class Directory extends Item {
 		this.files = new FileCollection();
 	}
 
-	mergeIn (item) {
+	addRef (item) {
 		if (item instanceof File) {
 			this.files.setOnce(item.value, item);
 		} else {
@@ -127,7 +131,11 @@ class Directory extends Item {
 	}
 }
 
-class DirectoryCollection extends Collection {}
+class DirectoryCollection extends Collection {
+	unique(key, value) {
+		return unique.call(this, Directory, key, value);
+	}
+}
 
 
 // =============

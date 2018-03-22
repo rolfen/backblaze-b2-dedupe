@@ -4,9 +4,31 @@
 const readline = require('readline');
 const minimist = require("minimist");
 const HashCollection = require("./modules/dupes/index.js").HashCollection;
+const DirectoryCollection = require("./modules/dupes/index.js").DirectoryCollection;
 const File = require("./modules/dupes/index.js").File;
+const connect = require("./modules/dupes/index.js").connect;
 
 
+
+// Util
+
+function countKeys(o) {
+	return (Object.keys(o).length);
+}
+
+// forEach() for objects
+function forEachProp(o, func) {
+	var propNames = Object.keys(o);
+	propNames.forEach(function(propName){
+		func(o[propName], propName, o);
+	})
+}
+
+function mapProps(o, func) {
+	// ?
+}
+
+// end Util
 
 
 // parse arguments
@@ -34,17 +56,41 @@ lineRead.on('line', function (line) {
 	var sha = line.substr(0, 40);
 	var path = line.substr(41);
 	var hash = hashes.unique(sha);
-	hash.mergeIn(new File(path));
+	var file = new File(path);
+	connect(hash, file);
 });
+
 
 lineRead.on('close', function (line) {
 	switch(verb) {
+		case "test":
+			const assert = require('assert');
+			console.log("forEachProp");
+			var obj = {
+				p1 : "First Prop",
+				p2 : "Prop Two"
+			};
+			var res = '';
+			forEachProp(obj, function(v, k, o) {
+				res += v + k + JSON.stringify(o)
+			})
+			assert.strictEqual(res, 
+				obj['p1'] + 'p1' + JSON.stringify(obj) 
+				+ obj['p2'] + 'p2' + JSON.stringify(obj)
+			);
+		break;
 		case "list-hashes":
 			Object.keys(hashes).forEach((h)=>{
-				console.log(h);
+				process.stdout.write(h + "\n");
 			});
 		break;
 		case "count":
+			Object.keys(hashes).forEach((h)=>{
+				var count = countKeys(hashes[h].files);
+				if(count > 1) {
+					process.stdout.write(h + ' ' + count + "\n");
+				}
+			});
 		break;
 		case "affinity":
 			/*
@@ -123,12 +169,20 @@ lineRead.on('close', function (line) {
 			});
 		break;
 		case "dirlist":
-			var dir = dirList(hash)
-			for(var dirname in dir) {
-				if(dir.hasOwnProperty(dirname)) { 
-					process.stdout.write(dirname + "\n");
-				}
-			}
+			const path = require('path');
+			var dirs = new DirectoryCollection();
+			forEachProp(hashes, function(hashItem, hash){
+				forEachProp(hashItem.files, function(fileItem, filePath){
+					var dirPath = path.dirname(filePath);
+					var dirItem = dirs.unique(dirPath);
+					dirItem.value = dirPath;
+					debugger;
+					connect(fileItem, dirItem);
+				});
+			});
+			forEachProp(dirs, function(dirItem, dirPath){
+				process.stdout.write(dirname + "\n");
+			})
 		break;
 		case "dirs":
 			var dir = dirList(hash)

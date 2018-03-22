@@ -43,21 +43,20 @@ const connect = require('./index.js').connect;
 	console.log("File");
 	var file = new File(bogusFilename);
 	assert.strictEqual(file.value, bogusFilename);
-
 }();
 
 !function() {
 	var file = new File('/me/file.jpg');
 	var hash = new Hash(bogusSha1);
 	console.log("Merge Hash into File");
-	file.mergeIn(hash);
+	file.addRef(hash);
 	assert.strictEqual(file.hash,hash);
 	console.log("Merge File into Hash");
-	hash.mergeIn(file);
+	hash.addRef(file);
 	assert.strictEqual(hash.files[file.value],file);
 	console.log("Merge another File into Hash");
 	var file2 = new File('/my/file1/f1/blah.txt');
-	hash.mergeIn(file2);
+	hash.addRef(file2);
 	assert.strictEqual(hash.files[file2.value],file2);
 	assert(Object.keys(hash.files).length === 2);	
 }();
