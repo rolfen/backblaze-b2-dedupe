@@ -197,7 +197,7 @@ lineRead.on('close', function (line) {
 			}
 		break;
 		default:
-			for(sha in hash) {
+			for(var sha in hash) {
 				if(hash.hasOwnProperty(sha)) {
 					var files = hash[sha];
 					if(files.length > 1) {
