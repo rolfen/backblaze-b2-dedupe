@@ -4,12 +4,12 @@
   "description": "Deduplicate files before uploading to Backblaze B2",
   "main": "index.js",
   "dependencies": {
-    "backblaze-b2": "^1.0.2",
+    "backblaze-b2": "^1.0.4",
     "minimist": "^1.2.0",
     "path": "^0.12.7",
-    "recursive-readdir": "^2.2.1",
+    "recursive-readdir": "^2.2.2",
     "setops": "git+https://github.com/rolfen/setOps.git",
-    "sha1-file": "^1.0.0"
+    "sha1-file": "^1.0.1"
   },
   "devDependencies": {},
   "scripts": {
